@@ -1,0 +1,34 @@
+{
+  "name": "evozon-php/simple-bruteforce-bundle",
+  "type": "symfony-bundle",
+  "description": "Symfony 3+ Simple Brute Force Bundle",
+  "keywords": [
+    "security",
+    "brute force",
+    "login"
+  ],
+  "homepage": "https://github.com/Evozon-PHP/SimpleBruteForceBundle",
+  "license": "MIT",
+  "authors": [
+    {
+      "name": "Constantin Bejenaru",
+      "email": "constantin.bejenaru@evozon.com"
+    }
+  ],
+  "require": {
+    "php": ">=7.1",
+    "doctrine/orm": "^2.5",
+    "psr/log": "^1.0",
+    "symfony/framework-bundle": "^3.0|^4.0"
+  },
+  "minimum-stability": "dev",
+  "prefer-stable": true,
+  "autoload": {
+    "files": [
+      "src/functions.php"
+    ],
+    "psr-4": {
+      "EvozonPhp\\": "src/"
+    }
+  }
+}

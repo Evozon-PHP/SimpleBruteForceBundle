@@ -1,0 +1,35 @@
+EvozonPhp\SimpleBruteForceBundle\Entity\FailedLogin:
+  type: entity
+  repositoryClass: EvozonPhp\SimpleBruteForceBundle\Repository\FailedLoginRepository
+  options:
+    comment: Failed Login Attempts
+  id:
+    id:
+      type: bigint
+      generator:
+        strategy: AUTO
+      options:
+        unsigned: true
+  fields:
+    identifier:
+      type: string
+      unique: true
+      nullable: false
+      options:
+          comment: Indentifier to track (username, token, ip, etc.).
+    count:
+      type: smallint
+      length: 4
+      nullable: false
+      options:
+        default: 0
+        unsigned: true
+        comment: Number of failed login attempts
+    updated:
+      type: datetime
+      nullable: false
+      gedmo:
+        timestampable:
+          on: update
+      options:
+        comment: Last updated at

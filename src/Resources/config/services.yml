@@ -1,0 +1,59 @@
+services:
+
+    simple_brute_force.failed_login.repository:
+        class: EvozonPhp\SimpleBruteForceBundle\Repository\FailedLoginRepository
+        factory: ["@doctrine", getRepository]
+        arguments:
+            - 'SimpleBruteForceBundle:FailedLogin'
+
+    simple_brute_force.security.http_post_authentication_voter:
+        class: EvozonPhp\SimpleBruteForceBundle\Security\HttpPostAuthenticationVoter
+        public: false
+        arguments:
+            - '@request_stack'
+        tags:
+            - { name: simple_brute_force.security.voter }
+
+    simple_brute_force.security.authentication_voter:
+        class: EvozonPhp\SimpleBruteForceBundle\Security\AuthenticationVoter
+        public: false
+        tags:
+            - { name: simple_brute_force.security.voter }
+
+    simple_brute_force.authorization.access_decision_manager:
+        class: Symfony\Component\Security\Core\Authorization\AccessDecisionManager
+        public: false
+        arguments:
+            - []
+            - 'unanimous'
+
+    simple_brute_force.subscriber.authentication_failed:
+        class: EvozonPhp\SimpleBruteForceBundle\EventSubscriber\AuthenticationFailedSubscriber
+        public: false
+        lazy: true
+        arguments:
+            - '@request_stack'
+            - '@simple_brute_force.failed_login.repository'
+            - '@simple_brute_force.authorization.access_decision_manager'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    simple_brute_force.subscriber.authentication_success:
+        class: EvozonPhp\SimpleBruteForceBundle\EventSubscriber\AuthenticationSuccessSubscriber
+        public: false
+        lazy: true
+        arguments:
+            - '@simple_brute_force.failed_login.repository'
+        tags:
+            - { name: kernel.event_subscriber }
+
+    simple_brute_force.subscriber.authentication_preattempt:
+        class: EvozonPhp\SimpleBruteForceBundle\EventSubscriber\AuthenticationPreAttemptSubscriber
+        public: false
+        arguments:
+            - '@simple_brute_force.failed_login.repository'
+            - '%simple_brute_force.configuration%'
+        calls:
+            - [setLogger, ['@logger']]
+        tags:
+            - { name: kernel.event_subscriber }
