@@ -32,15 +32,26 @@ class Configuration implements ConfigurationInterface
                             ->defaultValue('PT5M')
                         ->end()
 
-                        ->scalarNode('error_message')
-                            ->info('Response message for blocked users. Don\'t give too much info away.')
-                            ->cannotBeEmpty()
-                            ->defaultValue('Unauthorized!')
-                        ->end()
-
                         ->integerNode('alert_attempts')
                             ->info('Alert when failed attempts exceed this value.')
                             ->defaultValue(25)
+                        ->end()
+                    ->end()
+                ->end()
+
+                ->arrayNode('response')
+                    ->addDefaultsIfNotSet()
+                    ->children()
+
+                        ->integerNode('error_code')
+                            ->info('HTTP response status code.')
+                            ->defaultValue(401)
+                        ->end()
+
+                        ->scalarNode('error_message')
+                            ->info('HTTP esponse message for blocked users. Don\'t give too much info away.')
+                            ->cannotBeEmpty()
+                            ->defaultValue('Unauthorized!')
                         ->end()
                     ->end()
                 ->end()

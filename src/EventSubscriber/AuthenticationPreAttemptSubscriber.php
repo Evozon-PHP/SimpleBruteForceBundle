@@ -7,7 +7,7 @@ use Psr\Log\LoggerAwareTrait;
 use Psr\Log\NullLogger;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
 use Symfony\Component\HttpKernel\Event\GetResponseEvent;
-use Symfony\Component\HttpKernel\Exception\TooManyRequestsHttpException;
+use Symfony\Component\HttpKernel\Exception\HttpException;
 use Symfony\Component\HttpKernel\KernelEvents;
 
 /**
@@ -157,12 +157,9 @@ class AuthenticationPreAttemptSubscriber implements EventSubscriberInterface
                 );
             }
 
-            // might want to calculate difference (https://developer.mozilla.org/docs/Web/HTTP/Headers/Retry-After)
-            $retryAfter = null;
-
-            throw new TooManyRequestsHttpException(
-                $retryAfter,
-                $this->config['limits']['error_message']
+            throw new HttpException(
+                $this->config['response']['error_code'],
+                $this->config['response']['error_message']
             );
         }
 
