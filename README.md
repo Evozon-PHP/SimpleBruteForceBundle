@@ -59,3 +59,4 @@ app.security.2fa_voter:
 
 * Create multiple adapters to store failed logins: Redis, Memcached, file, etc. Main benefits would be to skip DB altogether.
 * Send and format response content according to `Accept` request header.
+* Add unit tests
