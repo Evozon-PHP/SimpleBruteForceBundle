@@ -5,11 +5,11 @@ namespace EvozonPhp\SimpleBruteForceBundle\EventSubscriber;
 use EvozonPhp\SimpleBruteForceBundle\Entity\FailedLogin;
 use EvozonPhp\SimpleBruteForceBundle\Repository\RepositoryInterface;
 use Symfony\Component\EventDispatcher\EventSubscriberInterface;
-use Symfony\Component\HttpFoundation\Request;
 use Symfony\Component\HttpFoundation\RequestStack;
 use Symfony\Component\Security\Core\AuthenticationEvents;
 use Symfony\Component\Security\Core\Authorization\AccessDecisionManagerInterface;
 use Symfony\Component\Security\Core\Event\AuthenticationFailureEvent;
+use Symfony\Component\Security\Guard\Token\GuardTokenInterface;
 
 /**
  * Authentication Failed Subscriber.
@@ -18,7 +18,6 @@ use Symfony\Component\Security\Core\Event\AuthenticationFailureEvent;
  */
 class AuthenticationFailedSubscriber implements EventSubscriberInterface
 {
-
     private const CAN_AUTHENTICATE = 'can_authenticate';
 
     /**
@@ -79,7 +78,7 @@ class AuthenticationFailedSubscriber implements EventSubscriberInterface
             return;
         }
 
-        $credentials = $event->getAuthenticationToken()->getCredentials();
+        $credentials = $this->extractCredentialsFromToken($event->getAuthenticationToken());
 
         $username = $credentials['username'] ?? null;
         if (null === $username) {
@@ -94,4 +93,35 @@ class AuthenticationFailedSubscriber implements EventSubscriberInterface
         $failedLogin->setCount($failedLogin->getCount() + 1);
         $this->repository->persist($failedLogin);
     }
+
+    /**
+     * Extract credentials array from security token.
+     *
+     * @param GuardTokenInterface $token
+     * @return array
+     */
+    private function extractCredentialsFromToken(GuardTokenInterface $token): array
+    {
+        $credentials = $token->getCredentials();
+
+        // handle special use case
+        if (is_a($credentials, 'Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\PreAuthenticationJWTUserToken')) {
+            /** @var $credentials \Lexik\Bundle\JWTAuthenticationBundle\Security\Authentication\Token\PreAuthenticationJWTUserToken */
+            $credentials = $credentials->getPayload();
+        }
+
+        if (!is_array($credentials)) {
+            throw new \UnexpectedValueException(
+                sprintf(
+                    '"%s" expected to return "%s", but returned "%s" instead.',
+                    'GuardTokenInterface::getCredentials()',
+                    'array',
+                    gettype($credentials)
+                )
+            );
+        }
+
+        return $credentials;
+    }
 }
+
